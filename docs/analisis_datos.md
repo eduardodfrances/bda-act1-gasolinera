@@ -168,10 +168,10 @@ Integrados en la columna *Formato* de la tabla 3a y en la nota de la tabla 3b.
 **Decisión:** se mantiene `tipo_servicio` como TEXT, sin transformar. Ninguna consulta lo usa, pero forma parte de la información publicada y guardarlo tal cual no añade complejidad a la carga.
 
 ### 5.9 Unidades de precio
-**Datos:** en marítimos, gasóleo B y gasóleo de uso marítimo vienen en €/1000 L (1090–1999); el resto de precios de los dos ficheros, en €/L (0,49–3,41). El tipo `NUMERIC(6,3)` admite hasta 999,999.
+**Datos:** en marítimos, gasóleo B y gasóleo de uso marítimo vienen en €/1000 L (1090–1999); el resto de precios de los dos ficheros, en €/L (0,49–3,41), salvo el hidrógeno, que se expresa en €/kg (9,90 y 25,00). El tipo `NUMERIC(6,3)` admite hasta 999,999.
 **Propuesta:** normalizar en la carga dividiendo entre 1000 esos dos carburantes de marítimos.
 **Alternativa:** ampliar el tipo a `NUMERIC(8,3)` y guardar el dato tal cual.
-**Decisión:** se normalizan todos los precios a €/L en la carga. Así todos los valores de `precio` están en la misma unidad y se pueden comparar entre estaciones y entre terrestres y marítimas. El esquema no cambia.
+**Decisión:** se normalizan a €/L en la carga los dos carburantes de marítimos que vienen en €/1000 L. Así los precios de los combustibles líquidos están en la misma unidad y se pueden comparar entre estaciones y entre terrestres y marítimas. El hidrógeno se mantiene en €/kg, que es su unidad de venta. El esquema no cambia.
 
 ## 6. Cobertura de las consultas
 
@@ -185,3 +185,4 @@ Integrados en la columna *Formato* de la tabla 3a y en la nota de la tabla 3b.
 
 **Centro de Albacete:** plaza del Altozano, 38.995306, -1.854184 (Google Maps). Es el centro histórico y administrativo de la ciudad.
 **Cálculo de distancia:** fórmula de Haversine escrita directamente en SQL, sin instalar extensiones en PostgreSQL. El filtro es por distancia, no por municipio: a 10 km pueden entrar estaciones de municipios vecinos.
+**Nombre de la comunidad para la consulta 3:** Comunidad de Madrid (escrito así en `comunidad_autonoma`).

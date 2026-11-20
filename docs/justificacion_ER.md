@@ -22,7 +22,7 @@ El análisis completo de los ficheros está en `analisis_datos.md`, y la lista d
 
 **estacion.** Cada estación terrestre o poste marítimo. Su clave primaria es un identificador generado, porque los ficheros no traen ningún código de estación y la combinación provincia + municipio + dirección se repite 219 veces. Guarda la dirección, el código postal, las coordenadas, el margen, la fecha de actualización, el horario, el tipo de venta, la remisión y el tipo de servicio.
 
-**precio.** El precio de un carburante en una estación, en €/L. Su clave primaria es compuesta, `(id_estacion, id_carburante)`.
+**precio.** El precio de un carburante en una estación, en €/L (el hidrógeno, en €/kg). Su clave primaria es compuesta, `(id_estacion, id_carburante)`.
 
 ## 3. Relaciones y cardinalidades
 
@@ -38,7 +38,7 @@ El análisis completo de los ficheros está en `analisis_datos.md`, y la lista d
 
 **Municipio y localidad.** El municipio es la unidad administrativa (con ayuntamiento propio) y la localidad es el núcleo de población concreto donde está la estación. Un municipio puede tener varias localidades: por ejemplo, la estación de San José pertenece al municipio de Níjar, y la de Aguadulce, al de Roquetas de Mar. En 7 485 de las 11 535 estaciones terrestres los dos nombres coinciden, pero en el resto no; por eso hay 3 256 municipios y 4 066 localidades.
 
-**Relación entre estación y carburante.** Es una relación N:M: una estación vende varios carburantes y un carburante se vende en muchas estaciones. En el modelo relacional una N:M no se puede representar directamente, así que se resuelve con la tabla intermedia `precio`: cada fila representa una pareja estación–carburante y guarda un atributo propio de esa pareja, el importe. Por eso no aparece una línea directa entre `estacion` y `carburante` en el diagrama. Con este diseño solo se almacenan los precios que existen: el Excel de terrestres tiene 25 columnas de precio, pero la mayoría están casi vacías (por ejemplo, 30 precios de gasolina 95 E10 frente a 10 963 de gasolina 95 E5). Además, añadir un carburante nuevo no obliga a cambiar el esquema.
+**Relación entre estación y carburante.** Es una relación N:M: una estación vende varios carburantes y un carburante se vende en muchas estaciones. En el modelo relacional una N:M no se puede representar directamente, así que se resuelve con la tabla intermedia `precio`: cada fila representa una pareja estación–carburante y guarda un atributo propio de esa pareja, el importe. Por eso no aparece una línea directa entre `estacion` y `carburante` en el diagrama. Con este diseño solo se almacenan los precios que existen: el Excel de terrestres tiene 24 columnas de precio, pero la mayoría están casi vacías (por ejemplo, 30 precios de gasolina 95 E10 frente a 10 963 de gasolina 95 E5). Además, añadir un carburante nuevo no obliga a cambiar el esquema.
 
 ## 4. Restricciones de integridad
 
@@ -47,12 +47,12 @@ El análisis completo de los ficheros está en `analisis_datos.md`, y la lista d
 - **UNIQUE:** nombres únicos de comunidad, provincia, empresa y carburante. En municipio y localidad la unicidad es compuesta (dentro de su provincia o de su municipio), porque hay nombres repetidos en lugares distintos.
 - **NOT NULL:** los datos imprescindibles para identificar y ubicar una estación (tipo, empresa, localidad, dirección y fecha de actualización) y el importe del precio.
 - **CHECK:**
-    - `tipo_estacion` solo admite TERRESTRE o MARITIMA.
-    - `margen` solo admite D, I o N.
-    - `remision` solo admite OM o dm.
-    - `tipo_venta` depende del tipo de estación: P o R en terrestres; P, R o M en marítimas.
-    - Latitud entre -90 y 90; longitud entre -180 y 180.
-    - El precio debe ser mayor que 0.
+  - `tipo_estacion` solo admite TERRESTRE o MARITIMA.
+  - `margen` solo admite D, I o N.
+  - `remision` solo admite OM o dm.
+  - `tipo_venta` depende del tipo de estación: P o R en terrestres; P, R o M en marítimas.
+  - Latitud entre -90 y 90; longitud entre -180 y 180.
+  - El precio debe ser mayor que 0.
 
 ## 5. Decisiones de diseño
 
@@ -61,10 +61,10 @@ El análisis completo de los ficheros está en `analisis_datos.md`, y la lista d
 3. **Identificación de la estación:** clave sustituta y carga total (se vacían las tablas antes de cada carga), porque no hay un identificador fiable en los datos.
 4. **Jerarquía de ubicación:** comunidad → provincia → municipio → localidad, con unicidad compuesta en municipio y localidad.
 5. **Fecha de actualización:** atributo de la estación y obligatorio. En marítimas se usa la fecha de generación del fichero, que no trae una fecha por poste.
-6. **Terrestre y marítima en la misma tabla:** solo 4 columnas son exclusivas de las terrestres; en las marítimas quedan a NULL.
+6. **Terrestre y marítima en la misma tabla:** en el esquema final solo `margen` y `tipo_servicio` son exclusivas de las terrestres y quedan a NULL en las marítimas; la fecha se rellena en ambas.
 7. **Porcentajes de bio:** se eliminan, porque las dos columnas de origen están vacías.
 8. **Tipo de servicio:** se guarda tal cual como texto.
-9. **Unidades de precio:** todos los precios se guardan en €/L.
+9. **Unidades de precio:** todos los precios se guardan en €/L, salvo el hidrógeno (€/kg), que es como se vende.
 
 ## 6. Transformaciones resueltas en la carga
 
