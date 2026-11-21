@@ -1,59 +1,36 @@
 package org.example;
 
 import org.example.bd.ConexionBD;
+import org.example.carga.CargadorBD;
 import org.example.lectura.LectorExcel;
 import org.example.modelo.EstacionLeida;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.HashSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
-        List<EstacionLeida> terrestres = LectorExcel.leer(ConexionBD.rutaTerrestres(), "TERRESTRE");
-        List<EstacionLeida> maritimas = LectorExcel.leer(ConexionBD.rutaMaritimos(), "MARITIMA");
+    public static void main(String[] args) throws IOException, SQLException {
+        long inicio = System.currentTimeMillis();
 
-        System.out.println("Primera terrestre: " + terrestres.get(0));
-        System.out.println("Primera marítima: " + maritimas.get(0));
-        System.out.println();
+        Set<String> carburantes = new TreeSet<>();
+        carburantes.addAll(LectorExcel.carburantes(ConexionBD.rutaTerrestres()));
+        carburantes.addAll(LectorExcel.carburantes(ConexionBD.rutaMaritimos()));
 
-        System.out.println("Estaciones terrestres: " + terrestres.size() + " (esperado 11535)");
-        System.out.println("Estaciones marítimas: " + maritimas.size() + " (esperado 138)");
+        List<EstacionLeida> estaciones = new ArrayList<>();
+        estaciones.addAll(LectorExcel.leer(ConexionBD.rutaTerrestres(), "TERRESTRE"));
+        estaciones.addAll(LectorExcel.leer(ConexionBD.rutaMaritimos(), "MARITIMA"));
 
-        int preciosTerrestres = 0;
-        int preciosMaritimos = 0;
-        Set<String> carburantes = new HashSet<>();
+        System.out.println("Carburantes: " + carburantes.size() + " (esperado 25)");
+        System.out.println("Estaciones leídas: " + estaciones.size() + " (esperado 11673)");
 
-        for (EstacionLeida e : terrestres) {
-            preciosTerrestres += e.getPrecios().size();
-            carburantes.addAll(e.getPrecios().keySet());
-        }
+        CargadorBD.cargar(carburantes, estaciones);
 
-        int sinRotulo = 0;
-        BigDecimal maxGasoleoB = null;
-
-        for (EstacionLeida e : maritimas) {
-            preciosMaritimos += e.getPrecios().size();
-            carburantes.addAll(e.getPrecios().keySet());
-
-            if (e.getEmpresa().equals("SIN RÓTULO")) {
-                sinRotulo++;
-            }
-
-            BigDecimal gasoleoB = e.getPrecios().get("Gasóleo B");
-            if (gasoleoB != null && (maxGasoleoB == null || gasoleoB.compareTo(maxGasoleoB) > 0)) {
-                maxGasoleoB = gasoleoB;
-            }
-        }
-
-        System.out.println("Precios terrestres: " + preciosTerrestres + " (esperado 43071)");
-        System.out.println("Precios marítimos: " + preciosMaritimos + " (esperado 254)");
-        System.out.println("Carburantes distintos: " + carburantes.size() + " (esperado 23)");
-        System.out.println("Marítimas SIN RÓTULO: " + sinRotulo + " (esperado 5)");
-        System.out.println("Máximo gasóleo B marítimo: " + maxGasoleoB + " (esperado 1.575)");
-
+        long segundos = (System.currentTimeMillis() - inicio) / 1000;
+        System.out.println("Carga completada en " + segundos + " s");
     }
 }

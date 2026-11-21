@@ -41,12 +41,9 @@ public final class ConexionBD {
     }
 
     public static Connection obtener() throws SQLException {
-
-
         String url = leer("db.url");
         String user = leer("db.user");
         String password = leer("db.password");
-
 
         return DriverManager.getConnection(url, user, password);
     }

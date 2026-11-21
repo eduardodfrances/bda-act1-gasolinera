@@ -14,8 +14,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class LectorExcel {
 
@@ -83,6 +85,23 @@ public final class LectorExcel {
             }
 
             return estaciones;
+        }
+    }
+
+    public static Set<String> carburantes(String ruta) throws IOException {
+        try (FileInputStream entrada = new FileInputStream(ruta);
+             HSSFWorkbook libro = new HSSFWorkbook(entrada)) {
+
+            Map<String, Integer> cabeceras = mapaCabeceras(libro.getSheetAt(0).getRow(filaCabeceras));
+            Set<String> nombres = new HashSet<>();
+
+            for (String cabecera : cabeceras.keySet()) {
+                if (cabecera.startsWith(prefijoPrecio)) {
+                    nombres.add(Normalizador.nombreCarburante(cabecera));
+                }
+            }
+
+            return nombres;
         }
     }
 
