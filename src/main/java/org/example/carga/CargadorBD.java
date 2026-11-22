@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/** Vuelca las estaciones leídas en PostgreSQL en una sola transacción. */
 public final class CargadorBD {
 
     private static final String sqlVaciar =
@@ -37,6 +38,7 @@ public final class CargadorBD {
 
     private CargadorBD() {}
 
+    // Carga total: se vacía y se vuelve a cargar todo. Si algo falla, se deshace entero
     public static void cargar(Set<String> carburantes, List<EstacionLeida> estaciones) throws SQLException {
         try (Connection con = ConexionBD.obtener()) {
             con.setAutoCommit(false);
@@ -44,6 +46,7 @@ public final class CargadorBD {
             try {
                 vaciar(con);
 
+                // Cachés nombre → id para no insertar dos veces el mismo municipio, localidad, etc.
                 Map<String, Integer> idMunicipios = new HashMap<>();
                 Map<String, Integer> idLocalidades = new HashMap<>();
                 Map<String, Integer> idEmpresas = new HashMap<>();
@@ -61,6 +64,7 @@ public final class CargadorBD {
                             throw new IllegalStateException("Provincia no encontrada: " + e.getProvincia());
                         }
 
+                        // Claves compuestas, igual que los UNIQUE de municipio y localidad
                         int idMunicipio = id(idMunicipios, idProvincia + "|" + e.getMunicipio(),
                                 con, sqlMunicipio, e.getMunicipio(), idProvincia);
 
@@ -76,6 +80,7 @@ public final class CargadorBD {
                                 e.getLatitud(), e.getLongitud(), e.getFechaActualizacion(),
                                 e.getHorario(), e.getTipoVenta(), e.getRemision(), e.getTipoServicio());
 
+                        // Los precios se acumulan y se envían todos juntos al final
                         for (Map.Entry<String, BigDecimal> entrada : e.getPrecios().entrySet()) {
                             psPrecio.setInt(1, idEstacion);
                             psPrecio.setInt(2, idCarburantes.get(entrada.getKey()));
@@ -102,6 +107,7 @@ public final class CargadorBD {
         }
     }
 
+    // Las provincias ya están cargadas por 02_datos_referencia.sql; solo se leen
     private static Map<String, Integer> provincias(Connection con) throws SQLException {
         Map<String, Integer> mapa = new HashMap<>();
 
@@ -115,6 +121,7 @@ public final class CargadorBD {
         return mapa;
     }
 
+    // Ejecuta un INSERT y devuelve el id generado por PostgreSQL
     private static int insertar(Connection con, String sql, Object... valores) throws SQLException {
         try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             for (int k = 0; k < valores.length; k++) {
@@ -129,6 +136,7 @@ public final class CargadorBD {
         }
     }
 
+    // Devuelve el id de la caché o, si no está, lo inserta y lo guarda
     private static int id(Map<String, Integer> cache, String clave,
                           Connection con, String sql, Object... valores) throws SQLException {
         if (cache.containsKey(clave)) {

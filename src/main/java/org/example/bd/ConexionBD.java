@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/** Lee db.properties y abre conexiones con PostgreSQL. */
 public final class ConexionBD {
 
     private static final Properties propiedades = cargar();
@@ -30,6 +31,7 @@ public final class ConexionBD {
         return config;
     }
 
+    // Falla en el momento si falta una clave, en vez de devolver null y romper más tarde
     private static String leer(String clave) {
         String valor = propiedades.getProperty(clave);
 

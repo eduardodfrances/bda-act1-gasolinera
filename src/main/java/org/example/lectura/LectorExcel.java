@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/** Lee los .xls del Ministerio y devuelve una EstacionLeida por fila. */
 public final class LectorExcel {
 
+    // Filas y columnas cuentan desde 0
     private static final int filaFecha = 0;
     private static final int columnaFecha = 1;
     private static final int filaCabeceras = 3;
@@ -60,6 +62,7 @@ public final class LectorExcel {
                 Row fila = hoja.getRow(i);
                 if (fila == null) continue;
 
+                // Marítimos no tiene "Toma de datos": se usa la fecha del fichero
                 LocalDateTime fechaEstacion = tipoEstacion.equals("TERRESTRE")
                         ? Normalizador.fecha(valor(fila, cabeceras, colTomaDatos))
                         : fechaFichero;
@@ -88,6 +91,7 @@ public final class LectorExcel {
         }
     }
 
+    // Nombres de carburante sacados de las cabeceras, para incluir también los que no tienen precios
     public static Set<String> carburantes(String ruta) throws IOException {
         try (FileInputStream entrada = new FileInputStream(ruta);
              HSSFWorkbook libro = new HSSFWorkbook(entrada)) {
@@ -105,6 +109,7 @@ public final class LectorExcel {
         }
     }
 
+    // Nombre de columna → posición. Las columnas no están en el mismo sitio en los dos ficheros
     private static Map<String, Integer> mapaCabeceras(Row filaCabecera) {
         Map<String, Integer> mapa = new HashMap<>();
 
@@ -118,6 +123,7 @@ public final class LectorExcel {
         return mapa;
     }
 
+    // Devuelve null si la columna no existe en ese fichero (por ejemplo, Margen en marítimos)
     private static String valor(Row fila, Map<String, Integer> cabeceras, String columna) {
         Integer pos = cabeceras.get(columna);
         if (pos == null) return null;
@@ -128,6 +134,7 @@ public final class LectorExcel {
         return Normalizador.texto(formateador.formatCellValue(celda));
     }
 
+    // Solo se guardan los carburantes con precio en esa fila
     private static Map<String, BigDecimal> precios(Row fila, Map<String, Integer> cabeceras, String tipoEstacion) {
         Map<String, BigDecimal> resultado = new HashMap<>();
 

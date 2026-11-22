@@ -1,31 +1,4 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- =====================================================================
--- 04_consultas.sql
--- Consultas del enunciado sobre la base de datos de gasolineras.
--- Requiere haber ejecutado 01_DDL.sql, 02_datos_referencia.sql y la
--- carga en Java.
--- =====================================================================
-
-
--- ---------------------------------------------------------------------
--- Consulta 1: empresa con más estaciones terrestres.
--- Cuenta las estaciones terrestres de cada empresa y se queda con la
--- primera. WITH TIES muestra todas si hay empate.
--- ---------------------------------------------------------------------
+-- 1. Empresa con más estaciones terrestres
 SELECT em.nombre AS empresa,
        COUNT(*)  AS estaciones
 FROM estacion e
@@ -36,10 +9,7 @@ ORDER BY estaciones DESC
 FETCH FIRST 1 ROWS WITH TIES;
 
 
--- ---------------------------------------------------------------------
--- Consulta 2: empresa con más estaciones marítimas.
--- Igual que la consulta 1, filtrando por postes marítimos.
--- ---------------------------------------------------------------------
+-- 2. Empresa con más estaciones marítimas
 SELECT em.nombre AS empresa,
        COUNT(*)  AS estaciones
 FROM estacion e
@@ -50,12 +20,7 @@ ORDER BY estaciones DESC
 FETCH FIRST 1 ROWS WITH TIES;
 
 
--- ---------------------------------------------------------------------
--- Consulta 3: estación con la gasolina 95 E5 más barata de la
--- Comunidad de Madrid, con su localización, empresa y margen.
--- Recorre la jerarquía estación → localidad → municipio → provincia →
--- comunidad para filtrar por comunidad. WITH TIES muestra los empates.
--- ---------------------------------------------------------------------
+-- 3. Gasolina 95 E5 más barata en la Comunidad de Madrid
 SELECT e.direccion,
        l.nombre  AS localidad,
        m.nombre  AS municipio,
@@ -76,12 +41,8 @@ ORDER BY pr.precio
 FETCH FIRST 1 ROWS WITH TIES;
 
 
--- ---------------------------------------------------------------------
--- Consulta 4: estación con el gasóleo A más barato a 10 km o menos del
--- centro de Albacete (plaza del Altozano: 38.995306, -1.854184).
--- El WITH calcula la distancia de cada estación con la fórmula de
--- Haversine; fuera se filtra por los 10 km y se ordena por precio.
--- ---------------------------------------------------------------------
+-- 4. Gasóleo A más barato a 10 km o menos de la plaza del Altozano (Albacete).
+--    La distancia se calcula con Haversine dentro del WITH y se filtra fuera.
 WITH cercanas AS (
     SELECT e.direccion,
            l.nombre  AS localidad,
@@ -110,11 +71,7 @@ ORDER BY precio
 FETCH FIRST 1 ROWS WITH TIES;
 
 
--- ---------------------------------------------------------------------
--- Consulta 5: provincia del poste marítimo con la gasolina 95 E5 más
--- cara. Filtra los postes marítimos con precio de 95 E5, ordena de
--- mayor a menor y sube hasta la provincia por la jerarquía de ubicación.
--- ---------------------------------------------------------------------
+-- 5. Provincia del poste marítimo con la gasolina 95 E5 más cara
 SELECT p.nombre  AS provincia,
        m.nombre  AS municipio,
        e.direccion,

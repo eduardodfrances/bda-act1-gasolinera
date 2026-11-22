@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+/** Una fila del Excel ya normalizada, lista para insertarse en la base de datos. */
 @Data
 @Builder
 public class EstacionLeida {
@@ -30,5 +31,6 @@ public class EstacionLeida {
     private String remision;
     private String tipoServicio;
 
+    // Carburante → precio en €/L; solo los que la estación tiene a la venta
     private Map<String, BigDecimal> precios;
 }

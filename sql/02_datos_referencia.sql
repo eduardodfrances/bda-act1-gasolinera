@@ -1,11 +1,4 @@
--- =====================================================================
--- 02_datos_referencia.sql
--- Datos de referencia que no vienen en los ficheros del Ministerio:
--- 19 comunidades/ciudades autónomas y 52 provincias.
--- Se ejecuta después de 01_DDL.sql y antes de la carga Java.
--- Los nombres de provincia se escriben exactamente igual que en los Excel,
--- porque la carga busca cada provincia por su nombre.
--- =====================================================================
+-- Comunidades y provincias: no vienen en los Excel, se cargan antes que las estaciones
 
 INSERT INTO comunidad_autonoma (nombre) VALUES
     ('Andalucía'),
@@ -28,6 +21,7 @@ INSERT INTO comunidad_autonoma (nombre) VALUES
     ('Ceuta'),
     ('Melilla');
 
+-- La carga busca la provincia por nombre, por eso van igual que en el Excel
 INSERT INTO provincia (nombre, id_ccaa)
 SELECT v.provincia, c.id_ccaa
 FROM (VALUES

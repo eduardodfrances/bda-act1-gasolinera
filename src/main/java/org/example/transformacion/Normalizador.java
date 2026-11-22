@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/** Convierte el texto crudo del Excel al formato y tipo que espera la base de datos. */
 public final class Normalizador {
 
     private static final DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
@@ -14,12 +15,14 @@ public final class Normalizador {
 
     private Normalizador() {}
 
+    // Quita espacios, tabuladores y espacios dobles; una celda vacía pasa a null
     public static String texto(String valor) {
         if (valor == null || valor.isBlank()) return null;
 
         return valor.strip().replaceAll("\\s+", " ");
     }
 
+    // El Excel usa coma decimal
     public static BigDecimal decimal(String valor) {
         String t = texto(valor);
         if (t == null) return null;
@@ -34,6 +37,7 @@ public final class Normalizador {
         return LocalDateTime.parse(t, formatoFecha);
     }
 
+    // Terrestres trae la letra; marítimos, el texto completo
     public static String tipoVenta(String valor) {
         String t = texto(valor);
         if (t == null) return null;
@@ -46,12 +50,14 @@ public final class Normalizador {
         };
     }
 
+    // La empresa es el rótulo; sin rótulo se agrupa en "SIN RÓTULO" para cumplir el NOT NULL
     public static String empresa(String valor) {
         String t = texto(valor);
 
         return t == null ? sinRotulo : t.toUpperCase();
     }
 
+    // "Precio gasóleo A" → "Gasóleo A"
     public static String nombreCarburante(String cabecera) {
         String t = texto(cabecera);
         if (t == null) return null;
@@ -61,6 +67,7 @@ public final class Normalizador {
         return Character.toUpperCase(t.charAt(0)) + t.substring(1);
     }
 
+    // En marítimos, estos dos gasóleos vienen en €/1000 L; se pasan a €/L como el resto
     public static BigDecimal precio(String valor, String carburante, String tipoEstacion) {
         BigDecimal d = decimal(valor);
         if (d == null) return null;
