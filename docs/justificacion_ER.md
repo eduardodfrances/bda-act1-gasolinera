@@ -1,4 +1,4 @@
-# Justificación del diseño del esquema relacional
+# Jus tificación del diseño del esquema relacional
 
 ## 1. Objetivo y datos de origen
 

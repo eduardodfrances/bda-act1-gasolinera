@@ -12,7 +12,7 @@
 **Siglas (terrestres):** Margen - D: Derecho, I: Izquierdo, N: No aplica · Tipo venta - P: Venta al público en general · Rem. - OM: Datos procedentes del operador mayorista, dm: Datos procedentes del distribuidor minorista · Tipo servicio - P: Servicio asistido por personal, A: Autoservicio por parte del cliente, con presencia de personal en la instalación, D: Autoservicio por parte del cliente, sin presencia de personal en la instalación
 
 **Siglas (marítimos):** Tipo venta - P: Suministro a pesqueros, R: Suministro a barcos deportivos y de recreo, M: Mixta · Rem. - OM: Datos procedentes del operador mayorista, dm: Datos procedentes del distribuidor minorista
-
+**Formato elegido:** se usan los ficheros .xls porque incluyen todos los productos con sus precios en un solo fichero por tipo de estación; el CSV disponible no traía los precios.
 ## 2. Estructura
 
 | Dato | terrestres.xls | maritimos.xls |
